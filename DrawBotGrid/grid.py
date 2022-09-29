@@ -1,6 +1,8 @@
 import drawBot as db
 import math
 
+from bisect import bisect_left
+
 # ----------------------------------------
 
 """
@@ -65,15 +67,38 @@ class Columns():
         return (db.width() - self.margin_left + self.margin_right - (self.columns - 1) * self.gutter) / self.columns
 
     @property
+    def total_width(self):
+        return db.width() - self.margin_left + self.margin_right 
+
+    @property
     def height(self):
         return db.height() - self.margin_bottom + self.margin_top
+
+    @property
+    def top(self):
+        return db.height() + self.margin_top
+
+    @property
+    def bottom(self):
+        return self.margin_bottom
+
+    @property
+    def left(self):
+        return self.margin_left
+
+    @property
+    def right(self):
+        return db.width() + self.margin_right
 
     def span(self, span):
         return self.width * span + self.gutter * (span - 1)
 
     def __getitem__(self, index):
         # assert index <= self.columns
-        return self.margin_left + index * (self.gutter + self.width)
+        if index >= 0:
+            return self.margin_left + index * (self.gutter + self.width)
+        else:
+            return db.width() + self.margin_right + (index+1) * (self.gutter + self.width)
 
     def __len__(self):
         return self.columns
@@ -123,9 +148,11 @@ class BaselineGrid():
         Return the line index for the baseline right below the coordinate
         """
         for i, v in enumerate(self.values):
-            if v < y:
+            if v <= y:
                 return i
         return None
+
+
 
 
 # ----------------------------------------
@@ -156,32 +183,55 @@ def draw_image_at_size(path, possize, preserve_proprotions=True):
 # ----------------------------------------
 
 
-def grid_text_box(txt, box, grid, align_first_line_only=False, align=None):
+def grid_textbox(txt, box, baselineGrid, align_first_line_only=False, align=None):
+
     with db.savedState():
-        # textBloc does not like negative height
+        # textBlox does not like negative height
         box = correct_box_direction(box)
 
         x, y, w, h = box
+
         if not align_first_line_only:
             actual_line_height = db.fontLineHeight()
-            target_line_height = math.ceil(actual_line_height / grid) * grid
-            db.lineHeight(target_line_height)
+            target_line_height = math.ceil(actual_line_height / baselineGrid.line_height) * baselineGrid.line_height
+            set_metric_line_height(target_line_height)
 
-        # calculate first line offset
-        font_top = db.fontCapHeight()
-        target_first_line = math.ceil(font_top / grid) * grid
-        actual_first_line = get_first_line_height_relative_to_box(txt, (x, y, w, h))
-        offset = actual_first_line - target_first_line
-        db.baselineShift(offset * BASELINE_SHIFT_RATIO_ADJUST)
+        # align cap height to the top of the box
+        abs_cap_h = db.fontCapHeight()
+        first_line_y = db.textBoxBaselines(txt, box)[0][1]
+        current_cap_y = first_line_y + abs_cap_h
+        cap_y_offset = y+h - current_cap_y
 
-        db.textBox(txt, (x, y, w, h), align=align)
+        # align top height of the text to the top of the box
+        # first_piece_of_text = db.textBoxCharacterBounds(txt, box)[0]
+        # top_of_text = first_piece_of_text.bounds[1] + first_piece_of_text.bounds[3]
+        # top_of_text_offset = y+h - top_of_text
+        # first_line_y = db.textBoxBaselines(txt, box)[0][1]
+        # offset_first_line_y = first_line_y + top_of_text_offset
+        #theoretical_first_line = y + h - db.fontLineHeight()
 
+        first_line_y_with_cap_offset = first_line_y + cap_y_offset
+        target_line_index = baselineGrid.baseline_index_from_coordinate(first_line_y_with_cap_offset)
+        target_line = baselineGrid[target_line_index]
+
+        offset = target_line - first_line_y
+
+        # target_first_line = math.ceil(font_top / grid) * grid
+        # actual_first_line = get_first_line_height_relative_to_box(txt, (x, y, w, h))
+        # offset = actual_first_line - target_first_line
+        # db.baselineShift(offset * BASELINE_SHIFT_RATIO_ADJUST)
+
+        db.textBox(txt, (x, y+offset, w, h), align=align)
+
+
+# def get_first_line_height_relative_to_box(txt, box):
+#     x, y, w, h = box
+#     absolute_first_line_x, absolute_first_line_y = db.textBoxBaselines(txt, box)[0]
+#     relative_first_line_y = y + h - absolute_first_line_y
+#     return relative_first_line_y
 
 def get_first_line_height_relative_to_box(txt, box):
-    x, y, w, h = box
-    absolute_first_line_x, absolute_first_line_y = db.textBoxBaselines(txt, box)[0]
-    relative_first_line_y = y + h - absolute_first_line_y
-    return relative_first_line_y
+    first_line = db.textBoxBaselines(txt, box)[0]
 
 
 def correct_box_direction(box):
@@ -196,16 +246,33 @@ def correct_box_direction(box):
 
 def vertically_centered_text_box(text, box, align=None):
     with db.savedState():
-        text = text.strip()
+        try:
+            text = text.strip()
+        except:
+            pass
         x, y, w, h = correct_box_direction(box)
         font_top = db.fontCapHeight()
+        
         lines = db.textBoxBaselines(text, (0, 0, w, h))
-        top = lines[0][1] + font_top
-        # current version will only center the first line
-        # bottom = lines[-1][1]
-        bottom = lines[0][1]
-        text_h = top - bottom
-        margin = (h - text_h) / 2
-        shift = margin - bottom
-        db.baselineShift(shift * BASELINE_SHIFT_RATIO_ADJUST)
-        db.textBox(text, (x, y, w, h), align=align)
+
+        if len(lines) > 0:
+            top = lines[0][1] + font_top
+            bottom = lines[-1][1]
+            text_h = top - bottom
+            margin = (h - text_h) / 2
+            shift = margin - bottom
+            #cdb.baselineShift(shift * BASELINE_SHIFT_RATIO_ADJUST)
+            db.textBox(text, (x, y+shift, w, h), align=align)
+
+# ----------------------------------------
+
+def set_metric_line_height(line_height):
+    txt = "H\nH"
+    db.lineHeight(line_height)
+    # should calculate appropriate size here
+    lines = db.textBoxBaselines(txt, (0, 0, 10000, 10000))
+    line_dist = lines[0][1] - lines[1][1]
+    target_line_dist = line_height
+    required_line_dist = target_line_dist - line_dist + target_line_dist
+    db.lineHeight(required_line_dist)
+
