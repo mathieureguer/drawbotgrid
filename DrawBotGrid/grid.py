@@ -1,114 +1,320 @@
 import drawBot as db
 import math
 
-from bisect import bisect_left
-
 # ----------------------------------------
 
-"""
-Weirdly enough, baselineShift behavior seems to have changed in macOs 10.15 and 11.xx. 
-And reverted backt ot the old behavior in 12.xx 
-"""
-import platform
-plat = platform.mac_ver()[0]
-
-if plat.startswith(("10.15", "11")):
-    BASELINE_SHIFT_RATIO_ADJUST = 1
-else:
-    BASELINE_SHIFT_RATIO_ADJUST = .5
-
-# ----------------------------------------
-
-
-class PseudoInt():
-    def __init__(self, value):
-        self.value = value
-
-    def __index__(self):
-        return self.value
-
-    def __index__(self):
-        return (db.height() - self.value)
-
-    def __add__(self, other):
-        return other + self.__index__()
-
-    def __radd__(self, other):
-        return self.__add__(other)
-
-    def __sub__(self, other):
-        return - other + self.__index__()
-
-    def __rsub__(self, other):
-        return self.__sub__(other)
-
-    def __repr__(self):
-        return(f"<{self.__class__.__name__} {self.value} -> {self.__index__()}>")
-
-
-class TopCoord(PseudoInt):
-    def __index__(self):
-        return db.height() - self.value
-
-
-class ReverseTopCoord(PseudoInt):
-    def __index__(self):
-        return self.value - db.height()
-
-
-class Columns():
-    def __init__(self, columns, gutter, margins_left_top_right_bottom):
-        self.columns = columns
+class AbstractGrid():
+    """
+    this is meant to be subclassed by Columns and Grid
+    """
+    
+    def __init__(self, possize, subdivisions, gutter):
+        self.x, self.y, self.width, self.height = possize
+        self.subdivisions = subdivisions
         self.gutter = gutter
-        self.margin_left, self.margin_top, self.margin_right, self.margin_bottom = margins_left_top_right_bottom
+    
+    @classmethod
+    def from_margins(cls, margins, *args):
+        left_margin, bottom_margin, right_margin, top_margin = margins
+        possize = -left_margin, -bottom_margin, db.width()+ left_margin + right_margin, db.height() + bottom_margin + top_margin
+        return cls(possize, *args)
+
+    # ----------------------------------------
+    @property
+    def _reference_dimension(self):
+        raise NotImplementedError
 
     @property
-    def width(self):
-        return (db.width() - self.margin_left + self.margin_right - (self.columns - 1) * self.gutter) / self.columns
+    def _start_point(self):
+        raise NotImplementedError
 
     @property
-    def total_width(self):
-        return db.width() - self.margin_left + self.margin_right 
+    def _end_point(self):
+        raise NotImplementedError
 
-    @property
-    def height(self):
-        return db.height() - self.margin_bottom + self.margin_top
+    
+    # ----------------------------------------
 
     @property
     def top(self):
-        return db.height() + self.margin_top
+        """
+        the absolute y value of the top of the grid
+        """
+        return self.y + self.height
 
     @property
     def bottom(self):
-        return self.margin_bottom
+        """
+        the absolute y value of the bottom of the grid
+        """
+        return self.y
 
     @property
     def left(self):
-        return self.margin_left
+        """
+        the absolute x value of the left of the grid
+        """
+        return self.x
 
     @property
     def right(self):
-        return db.width() + self.margin_right
+        """
+        the absolute x value of the right of the grid
+        """
+        return self.x + self.width
+
+    # ----------------------------------------
+    
+    @property
+    def subdivision_dimension(self):
+        """
+        the absolute dimension of a single subdivision within the grid
+        """
+        return (self._reference_dimension - ((self.subdivisions - 1) * self.gutter)) / self.subdivisions
 
     def span(self, span):
-        return self.width * span + self.gutter * (span - 1)
-
-    def __getitem__(self, index):
-        # assert index <= self.columns
-        if index >= 0:
-            return self.margin_left + index * (self.gutter + self.width)
+        """
+        the absolute dimension of a span of consecutive subdivision within the grid, including their inbetween gutters
+        """
+        if span >= 0:
+            return self.subdivision_dimension * span + self.gutter * (span - 1)
         else:
-            return db.width() + self.margin_right + (index+1) * (self.gutter + self.width)
+            return self.subdivision_dimension * span + self.gutter * (span + 1)
+    
+    # ----------------------------------------
+    
+    def __getitem__(self, index):
+        if index >= 0:
+            return self._start_point + index * (self.gutter + self.subdivision_dimension)
+        else:
+            return self._end_point + (index+1) * (self.gutter + self.subdivision_dimension)
 
     def __len__(self):
-        return self.columns
+        return self.subdivisions
 
     def __iter__(self):
-        return iter([self.__getitem__(i) for i in range(self.columns)])
+        return iter([self.__getitem__(i) for i in range(self.subdivisions)])
 
-    def draw(self):
-        for c in self:
-            db.rect(c, self.margin_bottom, self.width, self.height)
+    # ----------------------------------------
+    
+    def draw(self, index_fill=None):
+        self.draw_frame()
+        if index_fill is not None:
+            with db.savedState():
+                db.stroke(None)
+                db.fill(*index_fill)
+                self.draw_indexes()
+
+    def draw_frame(self):
+        raise NotImplementedError
+
+    def draw_indexes(self):
+        raise NotImplementedError
+
+# ----------------------------------------
+
+class Columns(AbstractGrid):
+    """
+    Will return coordinates according to a column based grid.
+
+    Columns are refered to by index, accessing a column index will return its absolute x coordinate in the page.
+    
+    ```
+    my_columns = Columns((50, 50, 900, 900), 8, 10)
+    print(my_columns[3])
+    > 505.0    
+    ```
+
+    Negative indexes refer the right part of a column, starting from the right of the page.
+    
+    ```
+    my_columns = Columns((50, 50, 900, 900), 8, 10)
+    print(my_columns[-2])
+    > 798.33  
+    ```
+
+    The grid can return the total width of a span of consecutive columns, including the related inbween gutters
+    
+    ```
+    my_columns = Columns((50, 50, 900, 900), 8, 10)
+    print(my_columns.span(4))
+    > 596.66 
+    ```
+
+    The whole point is to use this as coordinate helpers to draw shapes of course
+    
+    ```
+    my_columns = Columns((50, 50, 900, 900), 8, 10)
+    fill(0, 1, 0, .5)
+    rect(my_columns[1], my_columns.bottom, my_columns.span(3), my_columns.height)
+    fill(1, 0, 0, .5) 
+    rect(my_columns[0], my_columns.top, my_columns.span(3), -200)
+    rect(my_columns[2], my_columns.top-200, my_columns.span(1), -200)
+    rect(my_columns[5], my_columns.top-400, my_columns.span(2), -200)
+    ```
+    
+    The columns grid can also draw itself, if necessary
+    ```
+    my_columns = Columns((50, 50, 900, 900), 8, 10)
+    fill(None)
+    stroke(1, 0, 1)
+    strokeWidth(1)
+    my_columns.draw()
+    ```
+
+    """
+
+    @property
+    def columns(self):
+        return self.subdivisions
+
+    @property
+    def column_width(self):
+        return self.subdivision_dimension
+
+    @property
+    def _reference_dimension(self):
+        return self.width
+
+    @property
+    def _start_point(self):
+        return self.left
+
+    @property
+    def _end_point(self):
+        return self.right
+
+    # ----------------------------------------
+
+    def draw_frame(self):
+        for col in self:
+            db.rect(col, self.bottom, self.column_width, self.height)
+
+    def draw_indexes(self):
+        for i, col in enumerate(self):
+            db.text(str(i), (col+2, self.bottom+2))
+
+# ----------------------------------------
+
+class Rows(AbstractGrid):
+    """
+    To be documented :)
+    """
+
+    @property
+    def rows(self):
+        return self.subdivisions
+
+    @property
+    def row_height(self):
+        return self.subdivision_dimension
+
+    @property
+    def _reference_dimension(self):
+        return self.height
+
+    @property
+    def _start_point(self):
+        return self.bottom
+
+    @property
+    def _end_point(self):
+        return self.top
+
+    # ----------------------------------------
+
+    def draw_frame(self):
+        for row in self:
+            db.rect(self.left, row, self.width, self.row_height)
+
+    def draw_indexes(self):
+        for i, row in enumerate(self):
+            db.text(str(i), (self.left + 2, row+2))
+
+
+# ----------------------------------------
+
+class Grid(AbstractGrid):
+    """
+    this is meant to be subclassed by Columns and Grid
+    """
+
+    def __init__(self, possize, columns, rows, gutter_columns, gutter_rows):
+        self.x, self.y, self.width, self.height = possize
+        self.columns = Columns(possize, columns, gutter_columns)
+        self.rows = Rows(possize, rows, gutter_rows)
+
+
+    # ----------------------------------------
+
+    @property
+    def _reference_dimension(self):
+        return self.width, self.height
+
+    @property
+    def _start_point(self):
+        return self.left, self.bottom
+
+    @property
+    def _end_point(self):
+        return self.right, self.top
+
+    # ----------------------------------------
+    @property
+    def column_width(self):
+        return self.columns.column_width
+
+    @property
+    def row_height(self):
+        return self.rows.row_height
+
+    @property
+    def subdivision_dimension(self):
+        """
+        the absolute dimension of a single subdivision within the grid
+        """
+        return self.column_width, self.row_height
+
+    def column_span(self, span):
+        return self.columns.span(span)
+
+    def row_span(self, span):
+        return self.rows.span(span)
+
+    def span(self, column_span, row_span):
+        """
+        the absolute dimension of a span of consecutive subdivision within the grid, including their inbetween gutters
+        """
+        return self.column_span(column_span), self.row_span(row_span)
+    
+    # ----------------------------------------
+    
+    def __getitem__(self, index):
+        assert len(index) == 2
+        return self.columns[index[0]], self.rows[index[1]]
+
+    def __len__(self):
+        return len(self.columns) * len(self.rows)
+
+    def __iter__(self):
+        return iter([(c, r) for c in self.columns for r in self.rows])
+
+    # ----------------------------------------
+    
+    def draw_frame(self):
+        for col, row in self:
+            print(col, row)
+            db.rect(col, row, self.column_width, self.row_height)
+
+    def draw_indexes(self):
+        # for index_col, col in enumerate(self.columns):
+        #     for index_row, row in enumerate(self.rows):
+        #         db.text(f"({index_col}, {index_row})", (col+2, row+2))
+        self.rows.draw_indexes()
+        self.columns.draw_indexes()
+
+
+# ----------------------------------------
 
 
 class BaselineGrid():
@@ -118,8 +324,7 @@ class BaselineGrid():
         self.line_height = line_height
 
     def __getitem__(self, index):
-        # assert index <= self.columns
-        # return self.values[index]
+
         if index > 0:
             return db.height() - self.margin_top - index * self.line_height
         else:
