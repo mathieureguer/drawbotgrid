@@ -3,44 +3,41 @@ import math
 
 # ----------------------------------------
 
-class AbstractGrid():
+class AbstractArea():
     """
-    this is meant to be subclassed by Columns and Grid
+    this is mostly a possize, margin manager
     """
-    
-    def __init__(self, possize, subdivisions, gutter):
-        self.x, self.y, self.width, self.height = possize
-        self.subdivisions = subdivisions
-        self.gutter = gutter
-    
+    def __init__(self, possize):
+        self._x, self._y, self._width, self._height = possize
+        
     @classmethod
     def from_margins(cls, margins, *args):
         left_margin, bottom_margin, right_margin, top_margin = margins
-        possize = -left_margin, -bottom_margin, db.width()+ left_margin + right_margin, db.height() + bottom_margin + top_margin
+        possize = (-left_margin, -bottom_margin, db.width()+ left_margin + right_margin, db.height() + bottom_margin + top_margin)
         return cls(possize, *args)
 
-    # ----------------------------------------
     @property
-    def _reference_dimension(self):
-        raise NotImplementedError
+    def x(self):
+        return self._x
 
     @property
-    def _start_point(self):
-        raise NotImplementedError
+    def y(self):
+        return self._y
 
     @property
-    def _end_point(self):
-        raise NotImplementedError
+    def width(self):
+        return self._width
 
-    
-    # ----------------------------------------
+    @property
+    def height(self):
+        return self._height
 
     @property
     def top(self):
         """
         the absolute y value of the top of the grid
         """
-        return self.y + self.height
+        return self._y + self._height
 
     @property
     def bottom(self):
@@ -62,8 +59,58 @@ class AbstractGrid():
         the absolute x value of the right of the grid
         """
         return self.x + self.width
+   
+    # ----------------------------------------
+    
+    draw_color = (1, 0, 1, 1)
+    
+    def draw(self, show_index=False):
+        with db.savedState():
+            db.stroke(*self.draw_color)
+            db.fill(None)
+            db.strokeWidth(.5)
+            self.draw_frame()
+            
+        if show_index:
+            with db.savedState():
+                db.stroke(None)
+                db.fill(*self.draw_color)
+                db.fontSize(5)
+                self.draw_indexes()
+
+    def draw_frame(self):
+        raise NotImplementedError
+
+    def draw_indexes(self):
+        raise NotImplementedError
+
+# ----------------------------------------
+
+class AbstractGutterGrid(AbstractArea):
+    """
+    this is meant to be subclassed by Columns and Grid
+    """
+    
+    def __init__(self, possize, subdivisions, gutter):
+        super().__init__(possize)
+        self.subdivisions = subdivisions
+        self.gutter = gutter
 
     # ----------------------------------------
+
+    @property
+    def _start_point(self):
+        raise NotImplementedError
+
+    @property
+    def _end_point(self):
+        raise NotImplementedError
+           
+    # ----------------------------------------
+
+    @property
+    def _reference_dimension(self):
+        return self._end_point - self._start_point
     
     @property
     def subdivision_dimension(self):
@@ -74,7 +121,8 @@ class AbstractGrid():
 
     def span(self, span):
         """
-        the absolute dimension of a span of consecutive subdivision within the grid, including their inbetween gutters
+        the absolute dimension of a span of consecutive subdivisions within the grid, 
+        including their inbetween gutters
         """
         if span >= 0:
             return self.subdivision_dimension * span + self.gutter * (span - 1)
@@ -95,25 +143,10 @@ class AbstractGrid():
     def __iter__(self):
         return iter([self.__getitem__(i) for i in range(self.subdivisions)])
 
-    # ----------------------------------------
     
-    def draw(self, index_fill=None):
-        self.draw_frame()
-        if index_fill is not None:
-            with db.savedState():
-                db.stroke(None)
-                db.fill(*index_fill)
-                self.draw_indexes()
-
-    def draw_frame(self):
-        raise NotImplementedError
-
-    def draw_indexes(self):
-        raise NotImplementedError
-
 # ----------------------------------------
 
-class Columns(AbstractGrid):
+class ColumnGrid(AbstractGutterGrid):
     """
     Will return coordinates according to a column based grid.
 
@@ -172,9 +205,9 @@ class Columns(AbstractGrid):
     def column_width(self):
         return self.subdivision_dimension
 
-    @property
-    def _reference_dimension(self):
-        return self.width
+    # @property
+    # def _reference_dimension(self):
+    #     return self.width
 
     @property
     def _start_point(self):
@@ -196,7 +229,7 @@ class Columns(AbstractGrid):
 
 # ----------------------------------------
 
-class Rows(AbstractGrid):
+class RowGrid(AbstractGutterGrid):
     """
     To be documented :)
     """
@@ -209,9 +242,9 @@ class Rows(AbstractGrid):
     def row_height(self):
         return self.subdivision_dimension
 
-    @property
-    def _reference_dimension(self):
-        return self.height
+    # @property
+    # def _reference_dimension(self):
+    #     return self.height
 
     @property
     def _start_point(self):
@@ -220,6 +253,7 @@ class Rows(AbstractGrid):
     @property
     def _end_point(self):
         return self.top
+
 
     # ----------------------------------------
 
@@ -234,15 +268,15 @@ class Rows(AbstractGrid):
 
 # ----------------------------------------
 
-class Grid(AbstractGrid):
+class Grid(AbstractGutterGrid):
     """
     this is meant to be subclassed by Columns and Grid
     """
 
     def __init__(self, possize, columns, rows, gutter_columns, gutter_rows):
-        self.x, self.y, self.width, self.height = possize
-        self.columns = Columns(possize, columns, gutter_columns)
-        self.rows = Rows(possize, rows, gutter_rows)
+        self._x, self._y, self._width, self._height = possize
+        self.columns = ColumnGrid(possize, columns, gutter_columns)
+        self.rows = RowGrid(possize, rows, gutter_rows)
 
 
     # ----------------------------------------
@@ -303,61 +337,106 @@ class Grid(AbstractGrid):
     
     def draw_frame(self):
         for col, row in self:
-            print(col, row)
             db.rect(col, row, self.column_width, self.row_height)
 
     def draw_indexes(self):
         # for index_col, col in enumerate(self.columns):
         #     for index_row, row in enumerate(self.rows):
         #         db.text(f"({index_col}, {index_row})", (col+2, row+2))
-        self.rows.draw_indexes()
         self.columns.draw_indexes()
+        self.rows.draw_indexes()
 
 
 # ----------------------------------------
 
 
-class BaselineGrid():
-    def __init__(self, line_height, margin_top=0, margin_bottom=0):
-        self.margin_top = margin_top
-        self.margin_bottom = margin_bottom
+class BaselineGrid(AbstractArea):
+    """
+    
+    """
+    
+    def __init__(self, possize, line_height):
+        self.input_possize = possize
+        super().__init__(possize)
         self.line_height = line_height
 
-    def __getitem__(self, index):
 
-        if index > 0:
-            return db.height() - self.margin_top - index * self.line_height
-        else:
-            return self.values[index]
-
-    def __len__(self):
-        height = db.height() + self.margin_top - self.margin_bottom
-        return height // self.line_height + 1
-
-    def __iter__(self):
-        return iter(self.values)
+    # ----------------------------------------
 
     @property
-    def values(self):
-        return [db.height() - self.margin_top - index * self.line_height for index in range(len(self))]
+    def _start_point(self):
+        return self.top
+
+    @property
+    def _end_point(self):
+        return self.y
+
+    @property
+    def bottom(self):
+        """
+        the absolute y value of the bottom of the grid
+        """
+        # bottom matches the last visible line, it may not be equal self.y
+        return self[-1]
+
+    @property
+    def height(self):
+        """
+        height is overwritten with the actual distance from last to first line
+        """
+        return self.top - self.bottom 
+
+           
+    # ----------------------------------------
+    
+
+    @property
+    def _reference_dimension(self):
+        return self._end_point - self._start_point
+
+    @property
+    def subdivisions(self):
+        return abs(int(self._reference_dimension // self.subdivision_dimension)) + 1
+    
+    @property
+    def subdivision_dimension(self):
+        """
+        the absolute dimension of a single subdivision within the grid
+        """
+        return -self.line_height
 
     def span(self, span):
-        return self.line_height * span
+        """
+        the absolute dimension of a span of consecutive subdivisions within the grid, 
+        including their inbetween gutters
+        """
+        return span * self.subdivision_dimension
 
-    def draw(self):
+    # ----------------------------------------
+    
+    def __getitem__(self, index):
+        if index >= 0:
+            return self._start_point + index * self.subdivision_dimension
+        else:
+            return self._start_point + len(self) * self.subdivision_dimension + index * self.subdivision_dimension
+
+    def __len__(self):
+        return self.subdivisions
+
+    def __iter__(self):
+        return iter([self.__getitem__(i) for i in range(self.subdivisions)])
+
+    # ----------------------------------------
+    
+    draw_color = (1, 0, 1, 1)
+
+    def draw_frame(self):
         for c in self:
-            db.line((0, c), (db.width(), c))
+            db.line((self.left, c), (self.right, c))
 
-    def baseline_index_from_coordinate(self, y):
-        """
-        Return the line index for the baseline right below the coordinate
-        """
-        for i, v in enumerate(self.values):
-            if v <= y:
-                return i
-        return None
-
-
+    def draw_indexes(self):
+        for i, line in enumerate(self):
+            db.text(str(i), (self.left + 2, line+2))
 
 
 # ----------------------------------------
