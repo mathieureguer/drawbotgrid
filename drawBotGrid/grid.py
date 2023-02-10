@@ -91,7 +91,7 @@ class AbstractGutterGrid(AbstractArea):
     this is meant to be subclassed by Columns and Grid
     """
     
-    def __init__(self, possize, subdivisions, gutter):
+    def __init__(self, possize, subdivisions=8, gutter=10):
         super().__init__(possize)
         self.subdivisions = subdivisions
         self.gutter = gutter
@@ -277,10 +277,10 @@ class Grid(AbstractGutterGrid):
     this is meant to be subclassed by Columns and Grid
     """
 
-    def __init__(self, possize, columns, rows, gutter_columns, gutter_rows):
+    def __init__(self, possize, columns=8, rows=8, column_gutter, row_gutter):
         self._x, self._y, self._width, self._height = possize
-        self.columns = ColumnGrid(possize, columns, gutter_columns)
-        self.rows = RowGrid(possize, rows, gutter_rows)
+        self.columns = ColumnGrid(possize, columns, column_gutter)
+        self.rows = RowGrid(possize, rows, row_gutter)
 
 
     # ----------------------------------------
