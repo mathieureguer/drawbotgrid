@@ -6,7 +6,7 @@ from setuptools import setup
 #     with open("README.md") as f:
 #         return f.read()
 
-setup(name="DrawBotGrid",
+setup(name="drawBotGrid",
       version="0.1",
       description="a little helper for grid based layout in DrawBot",
       long_description="TBD",
@@ -20,7 +20,7 @@ setup(name="DrawBotGrid",
       author_email="mathieu.reguer@gmail.com",
       license="All rights reserved",
       packages=[
-        "DrawBotGrid",
+        "drawBotGrid",
         ],
       install_requires=[
         #"drawBot",
