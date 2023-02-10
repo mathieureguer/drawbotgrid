@@ -277,7 +277,7 @@ class Grid(AbstractGutterGrid):
     this is meant to be subclassed by Columns and Grid
     """
 
-    def __init__(self, possize, columns=8, rows=8, column_gutter, row_gutter):
+    def __init__(self, possize, columns_subdivisions=8, rows_subdivisions=8, column_gutter=10, row_gutter=10):
         self._x, self._y, self._width, self._height = possize
         self.columns = ColumnGrid(possize, columns, column_gutter)
         self.rows = RowGrid(possize, rows, row_gutter)
