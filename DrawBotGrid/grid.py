@@ -124,10 +124,11 @@ class AbstractGutterGrid(AbstractArea):
         the absolute dimension of a span of consecutive subdivisions within the grid, 
         including their inbetween gutters
         """
+        assert isinstance(span, (float, int))
         if span >= 0:
-            return self.subdivision_dimension * span + self.gutter * (span - 1)
+            return self.subdivision_dimension * span + self.gutter * (math.ceil(span) - 1)
         else:
-            return self.subdivision_dimension * span + self.gutter * (span + 1)
+            return self.subdivision_dimension * span + self.gutter * (math.ceil(span) + 1)
     
     # ----------------------------------------
     
@@ -142,6 +143,9 @@ class AbstractGutterGrid(AbstractArea):
 
     def __iter__(self):
         return iter([self.__getitem__(i) for i in range(self.subdivisions)])
+
+    def __mul__(self, factor):
+        return self.span(factor) 
 
     
 # ----------------------------------------
@@ -315,10 +319,12 @@ class Grid(AbstractGutterGrid):
     def row_span(self, span):
         return self.rows.span(span)
 
-    def span(self, column_span, row_span):
+    def span(self, column_span_row_span):
         """
         the absolute dimension of a span of consecutive subdivision within the grid, including their inbetween gutters
         """
+        assert len(column_span_row_span) == 2
+        column_span, row_span = column_span_row_span
         return self.column_span(column_span), self.row_span(row_span)
     
     # ----------------------------------------
@@ -414,6 +420,18 @@ class BaselineGrid(AbstractArea):
 
     # ----------------------------------------
     
+    def baseline_index_from_coordinate(self, y_coordinate):
+        for i, line in enumerate(self):
+            if y_coordinate >= line:
+                return i
+
+    def closest_line_from_coordinate(self, y_coordinate):
+        for i, line in enumerate(self):
+            if y_coordinate >= line:
+                return line
+
+    # ----------------------------------------
+    
     def __getitem__(self, index):
         if index >= 0:
             return self._start_point + index * self.subdivision_dimension
@@ -428,7 +446,7 @@ class BaselineGrid(AbstractArea):
 
     # ----------------------------------------
     
-    draw_color = (1, 0, 1, 1)
+    draw_color = (0, 1, 1, 1)
 
     def draw_frame(self):
         for c in self:
@@ -467,14 +485,13 @@ def draw_image_at_size(path, possize, preserve_proprotions=True):
 # ----------------------------------------
 
 
-def grid_textbox(txt, box, baselineGrid, align_first_line_only=False, align=None):
+def grid_textbox(txt, box, baselineGrid, align_first_line_only=False, align=None, verbose=False):
 
     with db.savedState():
         # textBlox does not like negative height
         box = correct_box_direction(box)
 
         x, y, w, h = box
-
         if not align_first_line_only:
             actual_line_height = db.fontLineHeight()
             target_line_height = math.ceil(actual_line_height / baselineGrid.line_height) * baselineGrid.line_height
@@ -497,6 +514,10 @@ def grid_textbox(txt, box, baselineGrid, align_first_line_only=False, align=None
         first_line_y_with_cap_offset = first_line_y + cap_y_offset
         target_line_index = baselineGrid.baseline_index_from_coordinate(first_line_y_with_cap_offset)
         target_line = baselineGrid[target_line_index]
+        if verbose:
+            print("box", box)
+            print("target", target_line_height)
+            print(target_line_index)
 
         offset = target_line - first_line_y
 
