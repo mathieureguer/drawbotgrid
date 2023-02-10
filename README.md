@@ -2,12 +2,12 @@
 
 **drawBotGrid** is a small library that make grid based layout easy in the always amazing [DrawBot](https://www.drawbot.com).
 
-![](/drawBotGrid/docs/columns_0.png)
+![ColumnGrid intro](/drawBotGrid/docs/columns_0.png)
 
 
 ## ColumnGrid
 
-A `ColumnGrid` dived the page in columns, separated by a gutter, making it easy to retrieve absolute x coordinates
+`ColumnGrid((x, y, h, w), subdivisions=8, gutter=10)` divides the page in columns, separated by a gutter, making it easy to retrieve absolute x coordinates
 
 ```python
 newPage("A4Landscape")
@@ -19,4 +19,4 @@ rect(columns[1], 100, columns * 3, 300)
 columns.draw(show_index=True)
 ```
 
-![](/drawBotGrid/docs/columns_1.png)
+![ColumnGrid basic](/drawBotGrid/docs/columns_1.png)
