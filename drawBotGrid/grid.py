@@ -11,10 +11,10 @@ class AbstractArea():
         self._x, self._y, self._width, self._height = possize
         
     @classmethod
-    def from_margins(cls, margins, *args):
+    def from_margins(cls, margins, *args, **kwargs):
         left_margin, bottom_margin, right_margin, top_margin = margins
         possize = (-left_margin, -bottom_margin, db.width()+ left_margin + right_margin, db.height() + bottom_margin + top_margin)
-        return cls(possize, *args)
+        return cls(possize, *args, **kwargs)
 
     @property
     def x(self):
@@ -277,10 +277,10 @@ class Grid(AbstractGutterGrid):
     this is meant to be subclassed by Columns and Grid
     """
 
-    def __init__(self, possize, columns_subdivisions=8, rows_subdivisions=8, column_gutter=10, row_gutter=10):
+    def __init__(self, possize, column_subdivisions=8, row_subdivisions=8, column_gutter=10, row_gutter=10):
         self._x, self._y, self._width, self._height = possize
-        self.columns = ColumnGrid(possize, columns, column_gutter)
-        self.rows = RowGrid(possize, rows, row_gutter)
+        self.columns = ColumnGrid(possize, column_subdivisions, column_gutter)
+        self.rows = RowGrid(possize, row_subdivisions, row_gutter)
 
 
     # ----------------------------------------
@@ -443,6 +443,9 @@ class BaselineGrid(AbstractArea):
 
     def __iter__(self):
         return iter([self.__getitem__(i) for i in range(self.subdivisions)])
+
+    def __mul__(self, factor):
+        return self.span(factor) 
 
     # ----------------------------------------
     

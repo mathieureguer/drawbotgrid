@@ -1,4 +1,5 @@
 import drawBot as db
+import math
 
 # ----------------------------------------
 
@@ -6,7 +7,7 @@ def baseline_grid_textBox(txt,
                 box, 
                 baseline_grid, 
                 align_first_line_only=False, 
-                align=None):
+                align="left"):
 
     with db.savedState():
         box = correct_box_direction(box)
