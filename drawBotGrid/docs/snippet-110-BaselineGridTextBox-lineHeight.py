@@ -6,6 +6,11 @@ from drawBotGrid import ColumnGrid, BaselineGrid, baselineGridTextBox
 
 newPage("A4Landscape")
 
+# </include> ----------------------------------------
+fill(1, 1, 1, .5)
+rect(0, 0, width(), height())
+# <include> ----------------------------------------
+
 baselines = BaselineGrid.from_margins((0, 0, 0, 0), 
                          line_height=6)
 columns = ColumnGrid((50, baselines[-8], width()-100, baselines*-88), subdivisions=3)

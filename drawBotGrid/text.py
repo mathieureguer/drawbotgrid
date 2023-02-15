@@ -55,6 +55,7 @@ verticallyCenteredTextBox = vertically_centered_textBox
 # ----------------------------------------
 
 def set_metric_baseline_height(line_height):
+    # Wait a minute. I am not sure that's necessary. Will investigate.
     txt = "H\nH"
     db.lineHeight(line_height)
 

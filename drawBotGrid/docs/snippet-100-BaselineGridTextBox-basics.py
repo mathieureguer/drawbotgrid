@@ -6,6 +6,10 @@ from drawBotGrid import ColumnGrid, BaselineGrid, baselineGridTextBox
 
 newPage("A4Landscape")
 
+# </include> ----------------------------------------
+fill(1, 1, 1, .5)
+rect(0, 0, width(), height())
+# <include> ----------------------------------------
 
 baselines = BaselineGrid.from_margins((0, 0, 0, 0), 
                          line_height=12)
@@ -14,6 +18,7 @@ columns = ColumnGrid((50, baselines[-4], width()-100, baselines*-44), subdivisio
 fill(0)
 font("Georgia")
 fontSize(9)
+lineHeight(12)
 textBox("This is a classic textBox.\n" + "blah "*1000, 
         (columns[0], columns.bottom, columns*1, columns.height))
 

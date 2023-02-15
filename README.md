@@ -10,7 +10,7 @@ In DrawBot, open the package manager with the menu Python -> Install Python Pack
 
 Enter the following url `git+https://github.com/mathieureguer/drawbotgrid` and press `go`.
 
-For drawBot as a command line module, jsut enter the following terminal command: 
+For drawBot as a command line module, just enter the following terminal command: 
 `pip install git+https://github.com/mathieureguer/drawbotgrid`
 
 
@@ -80,9 +80,10 @@ columns.draw(show_index=True)
 ![ColumnGrid multiply](drawBotGrid/docs/snippet-20-ColumnGrid-multiply.png)
 
 
-Conviniently, instead of creating a `ColumnGrid` from its `(x, y, w, h)` coordinates, you can initiate it from its margin values relative to the document with `ColumnGrid.from_margint((left_margin, bottom_margin, right_margin, top_margin), subdivisions, gutter)`
+Conviniently, instead of creating a `ColumnGrid` from its `(x, y, w, h)` coordinates, you can initiate it from its margin values relative to the document with `ColumnGrid.from_margint((left_margin, bottom_margin, right_margin, top_margin), subdivisions, gutter)`. Margins are expressed with negative values (following [Vanilla conventions](https://github.com/robotools/vanilla)).
 
-`ColumnGrid.bottom`, `ColumnGrid.top`, `ColumnGrid.left`, `ColumnGrid.right`, `ColumnGrid.width`, `ColumnGrid.height` can be uses to access the relevant coordinates for the grid.
+Handy coordinates can be easyly accessed with `ColumnGrid.bottom`, `ColumnGrid.top`, `ColumnGrid.left`, `ColumnGrid.right`, `ColumnGrid.width`, `ColumnGrid.height`.
+
 
 ```python
 from drawBotGrid import ColumnGrid
@@ -106,7 +107,7 @@ columns.draw(show_index=True)
 
 ## RowGrid
 
-`RowGrid((x, y, h, w), subdivisions=8, gutter=10)` divides the page in a given number of rows, separated by a gutter, making it easy to retrieve absolute y coordinates within the page. It works the same as `ColumnGrid` but for horizontal rows.
+`RowGrid((x, y, h, w), subdivisions=8, gutter=10)` divides the page in a given number of rows, separated by a gutter, making it easy to retrieve absolute y coordinates within the page. It works like `ColumnGrid` but for horizontal rows.
 
 
 ```python
@@ -136,7 +137,7 @@ rows.draw(show_index=True)
 
 ## Grid
 
-`Grid((x, y, h, w),, column_subdivisions=8, row_subdivisions=8, column_gutter=10, row_gutter=10)` combines the powers of `ColumnGrid` and `RowGrid` in single object, for all your grid needs.
+`Grid((x, y, h, w),, column_subdivisions=8, row_subdivisions=8, column_gutter=10, row_gutter=10)` combines the powers of `ColumnGrid` and `RowGrid` in a single object, for all your grid needs.
 
 The underlying `ColumnGrid` and `RowGrid` can be accesed through `Grid.columns` and `Grid.rows`, repectiveley. 
 
@@ -171,9 +172,9 @@ grid.draw(show_index=True)
 ![ColumnGrid margins](drawBotGrid/docs/snippet-50-Grid-basics.png)
 
 
-If you're feeling adventurous, `Grid.column` and `Grid.row` can be called by a tuple of index directly/ `Grid[(1, 5)]` will return the coordinate of the column at index 1 and the row at index 5.
+If you're feeling adventurous, `Grid.column` and `Grid.row` can be called directly by a tuple of indexes. `Grid[(1, 5)]` will return the coordinate of the column at index 1 and the row at index 5.
 
-`Grid` can also be multiplied by a tupple. `Grid*(2, 4)` will return the width value of 2 columh and the height value of 4 ows (including the required gutters).
+`Grid` can also be multiplied by a tupple. `Grid*(2, 4)` will return the width value of 2 column and the height value of 4 rows (including the required gutters).
 
 ```python
 from drawBotGrid import Grid
@@ -287,6 +288,7 @@ columns = ColumnGrid((50, baselines[-4], width()-100, baselines*-44), subdivisio
 fill(0)
 font("Georgia")
 fontSize(9)
+lineHeight(12)
 textBox("This is a classic textBox.\n" + "blah "*1000, 
         (columns[0], columns.bottom, columns*1, columns.height))
 
@@ -311,6 +313,7 @@ columns.draw(show_index=True)
 from drawBotGrid import ColumnGrid, BaselineGrid, baselineGridTextBox
 
 newPage("A4Landscape")
+
 
 baselines = BaselineGrid.from_margins((0, 0, 0, 0), 
                          line_height=6)
