@@ -119,9 +119,9 @@ Another notable difference is that folowing the top down direction of Latin text
 
 
 
-## BaselineGridTextBox
+## baselineGridTextBox
 
-`BaselineGrid`only becomes usefull if you can snap text to it. `BaselineGridTextBox(text, (x, y, w, h), baselineGrid, align_first_line_only=False, align="left")` is a `textBox` that takes a `BaselineGrid` object as an additonal argument. It will adjust the text `lineHeight` in order ot make it snap to the baseline grid.
+`BaselineGrid`only becomes usefull if you can snap text to it. `baselineGridTextBox(text, (x, y, w, h), baselineGrid, align_first_line_only=False, align="left")` is a `textBox` that takes a `BaselineGrid` object as an additonal argument. It will adjust the text `lineHeight` in order ot make it snap to the baseline grid.
 
 ```python
 <insert-file: snippet-100-BaselineGridTextBox-basics.py>
@@ -139,7 +139,31 @@ Another notable difference is that folowing the top down direction of Latin text
 
 
 
+# ColumnTextBox
 
+`columnText(text, (x, y, w, h), subdivisions=2, gutter=10, align="left")` is a `textBox` powered by an internal `ColumnGrid`. It flows the given text into multiple columns automatically. Like a normal `textBox`, it returns the overflow text is there is any.
+
+
+Setting the optional argument `draw_grid=True` will draw the underlying grid.
+
+```python
+<insert-file: snippet-120-ColumnTextBox-basics.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-120-ColumnTextBox-basics.png)
+
+
+
+# ColumnBaselineGridTextBox
+
+`ColumnBaselineGridTextBox(text, (x, y, w, h), baselineGrid, subdivisions=2, gutter=10, align="left")` is a `ColumnTextBox` that takes a `BaselineGrid` object as an additonal argument. It will adjust the text `lineHeight` in order ot make it snap to the baseline grid.
+
+
+```python
+<insert-file: snippet-130-ColumnBaselineGridTextBox-basics.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-130-ColumnBaselineGridTextBox-basics.png)
 
 
 
