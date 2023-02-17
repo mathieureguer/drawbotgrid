@@ -132,11 +132,16 @@ class AbstractGutterGrid(AbstractArea):
     
     # ----------------------------------------
     
-    def __getitem__(self, index):
-        if index >= 0:
-            return self._start_point + index * (self.gutter + self.subdivision_dimension)
-        else:
-            return self._end_point + (index+1) * (self.gutter + self.subdivision_dimension)
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return [self[i] for i in range(*key.indices(len(self)))]
+
+        elif isinstance(key, int):
+            index = key
+            if index >= 0:
+                return self._start_point + index * (self.gutter + self.subdivision_dimension)
+            else:
+                return self._end_point + (index+1) * (self.gutter + self.subdivision_dimension)
 
     def __len__(self):
         return self.subdivisions
@@ -432,11 +437,16 @@ class BaselineGrid(AbstractArea):
 
     # ----------------------------------------
     
-    def __getitem__(self, index):
-        if index >= 0:
-            return self._start_point + index * self.subdivision_dimension
-        else:
-            return self._start_point + len(self) * self.subdivision_dimension + index * self.subdivision_dimension
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            return [self[i] for i in range(*key.indices(len(self)))]
+
+        elif isinstance(key, int):
+            index = key
+            if index >= 0:
+                return self._start_point + index * self.subdivision_dimension
+            else:
+                return self._start_point + len(self) * self.subdivision_dimension + index * self.subdivision_dimension
 
     def __len__(self):
         return self.subdivisions
