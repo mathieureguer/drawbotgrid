@@ -139,7 +139,7 @@ Another notable difference is that folowing the top down direction of Latin text
 
 
 
-# ColumnTextBox
+# columnTextBox
 
 `columnText(text, (x, y, w, h), subdivisions=2, gutter=10, align="left")` is a `textBox` powered by an internal `ColumnGrid`. It flows the given text into multiple columns automatically. Like a normal `textBox`, it returns the overflow text is there is any.
 
@@ -154,9 +154,9 @@ Setting the optional argument `draw_grid=True` will draw the underlying grid.
 
 
 
-# ColumnBaselineGridTextBox
+#  columnBaselineGridTextBox
 
-`ColumnBaselineGridTextBox(text, (x, y, w, h), baselineGrid, subdivisions=2, gutter=10, align="left")` is a `ColumnTextBox` that takes a `BaselineGrid` object as an additonal argument. It will adjust the text `lineHeight` in order ot make it snap to the baseline grid.
+`columnBaselineGridTextBox(text, (x, y, w, h), baselineGrid, subdivisions=2, gutter=10, align="left")` is a `columnTextBox` that takes a `BaselineGrid` object as an additonal argument. It will adjust the text `lineHeight` in order ot make it snap to the baseline grid.
 
 
 ```python
@@ -166,4 +166,12 @@ Setting the optional argument `draw_grid=True` will draw the underlying grid.
 ![ColumnGrid margins](drawBotGrid/docs/snippet-130-ColumnBaselineGridTextBox-basics.png)
 
 
+# verticalAlignTextBox
+`verticalAlignTextBox(text, (x, y, w, h), vertical_align="top", align="left")` is a `textBox` that takes `vertical_align` as an additonal argument. Possible values are `"top"`, `"center"` and `"bottom"`.
+
+```python
+<insert-file: snippet-140-verticalAlignTextBox-basics.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-140-verticalAlignTextBox-basics.png)
 

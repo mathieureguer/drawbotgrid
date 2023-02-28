@@ -8,7 +8,10 @@ def baseline_grid_textBox(txt,
                 box, 
                 baseline_grid, 
                 align_first_line_only=False, 
-                align="left"):
+                align="left",
+                vertical_align="top"):
+
+    assert vertical_align in ("top", "bottom", "center")
 
     with db.savedState():
         box = correct_box_direction(box)
@@ -21,14 +24,30 @@ def baseline_grid_textBox(txt,
             set_metric_baseline_height(target_line_height)
 
         absolute_cap_height = db.fontCapHeight()
-        first_line_y = db.textBoxBaselines(txt, box)[0][1]
-        current_cap_y = first_line_y + absolute_cap_height
-        cap_distance_from_top = y + h - current_cap_y
 
-        highest_possible_first_line = first_line_y + cap_distance_from_top
-        target_line = baseline_grid.closest_line_below_coordinate(highest_possible_first_line)
+        if vertical_align == "top":
+            first_line_y = db.textBoxBaselines(txt, box)[0][1]
+            current_cap_y = first_line_y + absolute_cap_height
+            cap_distance_from_top = y + h - current_cap_y
 
-        shift = target_line - first_line_y
+            highest_possible_first_line = first_line_y + cap_distance_from_top
+            target_line = baseline_grid.closest_line_below_coordinate(highest_possible_first_line)
+
+            shift = target_line - first_line_y
+
+        elif vertical_align == "bottom":
+            last_line_y = db.textBoxBaselines(txt, box)[-1][1]
+            target_line = baseline_grid.closest_line_above_coordinate(y)
+            shift = target_line - last_line_y
+
+        elif vertical_align == "center":
+            # maybe there is more refined solution here
+            lines = db.textBoxBaselines(txt, box)
+            mid_line_index = int(len(lines)/2)
+            mid_line_y = lines[mid_line_index][1]
+            target_line = baseline_grid.closest_line_below_coordinate(y + h/2 - absolute_cap_height/2)
+            shift = target_line - mid_line_y
+
         overflow = db.textBox(txt, (x, y+shift, w, h), align=align)
         return overflow
 
@@ -121,39 +140,61 @@ def _draw_point(xy, radius=2):
 
 # ----------------------------------------
 
-def vertically_centered_textBox(text, box, align=None):
-        if len(text) > 0:
-            text = text.strip()
+def vertical_align_textBox(txt, box, align=None, vertical_align="top"):
+    assert vertical_align in ("top", "bottom", "center")
 
-        x, y, w, h = correct_box_direction(box)
-        font_top = db.fontCapHeight()        
-        lines = db.textBoxBaselines(text, (0, 0, w, h))
+    x, y, w, h = correct_box_direction(box)
 
-        if len(lines) > 0:
-            top = lines[0][1] + font_top
-            bottom = lines[-1][1]
-            text_h = top - bottom
-            margin = (h - text_h) / 2
-            shift = margin - bottom
-            db.textBox(text, (x, y+shift, w, h), align=align)
+    absolute_cap_height = db.fontCapHeight()
 
-verticallyCenteredTextBox = vertically_centered_textBox
+    if vertical_align == "top":
+        first_line_y = db.textBoxBaselines(txt, box)[0][1]
+        current_cap_y = first_line_y + absolute_cap_height
+        cap_distance_from_top = y + h - current_cap_y
+        highest_possible_first_line = first_line_y + cap_distance_from_top
+        target_line = y + h - absolute_cap_height
+        shift = target_line - first_line_y
+
+    elif vertical_align == "bottom":
+        last_line_y = db.textBoxBaselines(txt, box)[-1][1]
+        target_line = y
+        shift = target_line - last_line_y
+
+    elif vertical_align == "center":
+        # maybe there is more refined solution here
+        lines = db.textBoxBaselines(txt, box)
+
+        top = lines[0][1] + absolute_cap_height
+        bottom = lines[-1][1]
+        text_h = top - bottom
+        margin = (h - text_h) / 2
+        shift = y + margin - bottom
+    
+    db.textBox(txt, (x, y+shift, w, h), align=align)
+
+
+verticalAlignTextBox = vertical_align_textBox
 
 # ----------------------------------------
 
-def set_metric_baseline_height(line_height):
-    # Wait a minute. I am not sure that's necessary. Will investigate.
-    txt = "H\nH"
+def set_metric_baseline_height(baseline_height):
+    # this seems to be necessary only for fonts with unusual vertical metrics
+    line_height = _get_line_height_from_desired_baseline_height(baseline_height)
     db.lineHeight(line_height)
 
-    # should calculate appropriate size here
-    lines = db.textBoxBaselines(txt, (0, 0, 10000, 10000))
-    line_dist = lines[0][1] - lines[1][1]
-    target_line_dist = line_height
-    required_line_dist = target_line_dist - line_dist + target_line_dist
-    db.lineHeight(required_line_dist)
-
 baselineHeight = set_metric_baseline_height
+
+def _get_line_height_from_desired_baseline_height(baseline_height):
+    with db.savedState():
+        txt = "H\nH"
+        db.lineHeight(baseline_height)
+        # should calculate appropriate size here
+        lines = db.textBoxBaselines(txt, (0, 0, 10000, 10000))
+        line_dist = lines[0][1] - lines[1][1]
+        target_line_dist = baseline_height
+        required_line_dist = target_line_dist - line_dist + target_line_dist
+    return required_line_dist
+
 
 # ----------------------------------------
 

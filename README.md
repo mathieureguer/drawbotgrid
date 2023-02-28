@@ -348,7 +348,7 @@ columns.draw(show_index=True)
 
 
 
-# ColumnTextBox
+# columnTextBox
 
 `columnText(text, (x, y, w, h), subdivisions=2, gutter=10, align="left")` is a `textBox` powered by an internal `ColumnGrid`. It flows the given text into multiple columns automatically. Like a normal `textBox`, it returns the overflow text is there is any.
 
@@ -376,9 +376,9 @@ columnTextBox(text, (50, 50, width()-100, height()-100), subdivisions=3, gutter=
 
 
 
-# ColumnBaselineGridTextBox
+#  columnBaselineGridTextBox
 
-`ColumnBaselineGridTextBox(text, (x, y, w, h), baselineGrid, subdivisions=2, gutter=10, align="left")` is a `ColumnTextBox` that takes a `BaselineGrid` object as an additonal argument. It will adjust the text `lineHeight` in order ot make it snap to the baseline grid.
+`columnBaselineGridTextBox(text, (x, y, w, h), baselineGrid, subdivisions=2, gutter=10, align="left")` is a `columnTextBox` that takes a `BaselineGrid` object as an additonal argument. It will adjust the text `lineHeight` in order ot make it snap to the baseline grid.
 
 
 ```python
@@ -404,4 +404,39 @@ columnBaselineGridTextBox(text, (50, 50, width()-100, height()-100), baselines, 
 ![ColumnGrid margins](drawBotGrid/docs/snippet-130-ColumnBaselineGridTextBox-basics.png)
 
 
+# verticalAlignTextBox
+`verticalAlignTextBox(text, (x, y, w, h), vertical_align="top", align="left")` is a `textBox` that takes `vertical_align` as an additonal argument. Possible values are `"top"`, `"center"` and `"bottom"`.
+
+```python
+from drawBotGrid import ColumnGrid, verticalAlignTextBox
+
+newPage("A4Landscape")
+
+
+columns = ColumnGrid.from_margins((-50, -150, -50, -150), subdivisions=3, gutter=10)
+
+font("Georgia")
+fontSize(34)
+lineHeight(40)
+
+verticalAlignTextBox("HELLO\nFROM UP\nTHERE", 
+                     (columns[0], columns.bottom, columns*1, columns.height),
+                     vertical_align="top",
+                     align="center")
+
+verticalAlignTextBox("HELLO\nFROM MID\nTHERE", 
+                     (columns[1], columns.bottom, columns*1, columns.height),
+                     vertical_align="center",
+                     align="center")
+
+verticalAlignTextBox("HELLO\nFROM DOWN\nTHERE", 
+                     (columns[2], columns.bottom, columns*1, columns.height),
+                     vertical_align="bottom",
+                     align="center")
+
+columns.draw(show_index=True)
+
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-140-verticalAlignTextBox-basics.png)
 

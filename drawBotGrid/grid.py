@@ -59,6 +59,10 @@ class AbstractArea():
         the absolute x value of the right of the grid
         """
         return self.x + self.width
+
+    @property
+    def center(self):
+        return self.x + self.width/2, self.y + self.height/2
    
     # ----------------------------------------
     
@@ -426,14 +430,19 @@ class BaselineGrid(AbstractArea):
     # ----------------------------------------
     
     def baseline_index_from_coordinate(self, y_coordinate):
-        for i, line in enumerate(self):
+        for i, line in sorted(enumerate(self)):
             if y_coordinate >= line:
                 return i
 
     def closest_line_below_coordinate(self, y_coordinate):
-        for i, line in enumerate(self):
+        for i, line in sorted(enumerate(self)):
             if y_coordinate >= line:
                 return line
+
+    def closest_line_above_coordinate(self, y_coordinate):
+        for i, line in sorted(enumerate(self)):
+            if y_coordinate > line:
+                return line + self.line_height
 
     # ----------------------------------------
     
