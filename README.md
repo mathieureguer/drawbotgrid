@@ -350,7 +350,7 @@ columns.draw(show_index=True)
 
 # columnTextBox
 
-`columnText(text, (x, y, w, h), subdivisions=2, gutter=10, align="left")` is a `textBox` powered by an internal `ColumnGrid`. It flows the given text into multiple columns automatically. Like a normal `textBox`, it returns the overflow text is there is any.
+`columnTextBox(text, (x, y, w, h), subdivisions=2, gutter=10, align="left")` is a `textBox` powered by an internal `ColumnGrid`. It flows the given text into multiple columns automatically. Like a normal `textBox`, it returns the overflow text is there is any.
 
 
 Setting the optional argument `draw_grid=True` will draw the underlying grid.
