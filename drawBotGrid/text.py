@@ -207,32 +207,32 @@ def correct_box_direction(box):
 
 # ----------------------------------------
 
-def image_at_size(path, box, preserve_proprotions=True):
-    """
-    this could do a lot more. 
-    Things like cropping the image, 
-    aligning it somewhere esle that bottom, left...
-    """
-    x, y, w, h = box
-    actual_w, actual_h = db.imageSize(path)
-    if not w:
-        scale_ratio_w = h / actual_h
-        scale_ratio_h = h / actual_h
-    elif not h:
-        scale_ratio_w = w / actual_w
-        scale_ratio_h = w / actual_w
-    else:
-        scale_ratio_w = w / actual_w
-        scale_ratio_h = h / actual_h
+# def image_at_size(path, box, preserve_proprotions=True):
+#     """
+#     this could do a lot more. 
+#     Things like cropping the image, 
+#     aligning it somewhere esle that bottom, left...
+#     """
+#     x, y, w, h = box
+#     actual_w, actual_h = db.imageSize(path)
+#     if not w:
+#         scale_ratio_w = h / actual_h
+#         scale_ratio_h = h / actual_h
+#     elif not h:
+#         scale_ratio_w = w / actual_w
+#         scale_ratio_h = w / actual_w
+#     else:
+#         scale_ratio_w = w / actual_w
+#         scale_ratio_h = h / actual_h
 
-        if preserve_proprotions:
-            scale_ratio = min(scale_ratio_w, scale_ratio_h)
-            scale_ratio_w = scale_ratio
-            scale_ratio_h = scale_ratio
+#         if preserve_proprotions:
+#             scale_ratio = min(scale_ratio_w, scale_ratio_h)
+#             scale_ratio_w = scale_ratio
+#             scale_ratio_h = scale_ratio
 
-    with db.savedState():
-        db.translate(x, y)
-        db.scale(scale_ratio_w, scale_ratio_h)
-        db.image(path, (0, 0))
+#     with db.savedState():
+#         db.translate(x, y)
+#         db.scale(scale_ratio_w, scale_ratio_h)
+#         db.image(path, (0, 0))
 
 
