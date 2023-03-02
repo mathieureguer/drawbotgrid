@@ -28,6 +28,8 @@ def image_at_size(path, box, preserve_proprotions=True):
         db.scale(scale_ratio_w, scale_ratio_h)
         db.image(path, (0, 0))
 
+imageAtSize = image_at_size
+
 # ----------------------------------------
 
 def image_box(path,
