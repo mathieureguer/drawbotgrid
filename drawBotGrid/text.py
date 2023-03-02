@@ -56,13 +56,13 @@ baselineGridTextBox = baseline_grid_textBox
 # ----------------------------------------
 
 def column_textBox(txt, box, subdivisions=2, gutter=10, align="left", draw_grid=False):
-    _column_textBox_base(txt, box, baseline_grid=None, align_first_line_only=False, subdivisions=subdivisions, gutter=gutter, align=align, draw_grid=draw_grid)
+    return _column_textBox_base(txt, box, baseline_grid=None, align_first_line_only=False, subdivisions=subdivisions, gutter=gutter, align=align, draw_grid=draw_grid)
 
 columnTextBox = column_textBox
 
 
 def column_baseline_grid_textBox(txt, box, baseline_grid, align_first_line_only=False, subdivisions=2, gutter=10, align="left", draw_grid=False):
-    _column_textBox_base(txt, box, baseline_grid, align_first_line_only=align_first_line_only, subdivisions=subdivisions, gutter=gutter, align=align, draw_grid=draw_grid)
+    return _column_textBox_base(txt, box, baseline_grid, align_first_line_only=align_first_line_only, subdivisions=subdivisions, gutter=gutter, align=align, draw_grid=draw_grid)
 
 columnBaselineGridTextBox = column_baseline_grid_textBox
 
@@ -235,4 +235,4 @@ def image_at_size(path, box, preserve_proprotions=True):
         db.scale(scale_ratio_w, scale_ratio_h)
         db.image(path, (0, 0))
 
-imageBox = image_at_size
+
