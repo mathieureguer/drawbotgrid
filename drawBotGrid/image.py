@@ -35,10 +35,12 @@ imageAtSize = image_at_size
 def image_box(path,
              box,
              fitting="fit",
-             anchor=("left", "bottom"),
+             scale=1,
+             anchor=("left", "top"),
+             draw_box_frame=False,
              **kwargs):
 
-    assert fitting in (None, "fit", "fill", "crop")
+    assert fitting in ("fit", "fill", "crop")
 
     x, y, w, h = box
     im = db.ImageObject(path)
@@ -51,8 +53,9 @@ def image_box(path,
         scale_ratio = min(scale_ratio_w, scale_ratio_h)
     elif fitting == "fill":
         scale_ratio = max(scale_ratio_w, scale_ratio_h)
-    elif fitting == "crop":
-        scale_ratio = 1
+    elif fitting == "crop":        
+        scale_ratio = scale
+
 
     _crop_imageObject_with_anchor(im, anchor, w/scale_ratio, h/scale_ratio)
 
@@ -80,6 +83,14 @@ def image_box(path,
         db.translate(offset_x, offset_y)
         db.scale(scale_ratio, scale_ratio)
         db.image(im, (0, 0), **kwargs)
+
+    if draw_box_frame:
+        grid_color =  (.5, 0, .8, 1)
+        with db.savedState():
+            db.strokeWidth(.5)
+            db.fill(None)
+            db.stroke(*grid_color)
+            db.rect(*box)
 
 def _crop_imageObject_with_anchor(im, anchor, crop_width, crop_height):
     

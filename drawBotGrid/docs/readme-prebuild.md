@@ -175,3 +175,64 @@ Setting the optional argument `draw_grid=True` will draw the underlying grid.
 
 ![ColumnGrid margins](drawBotGrid/docs/snippet-140-verticalAlignTextBox-basics.png)
 
+
+# imageBox
+
+`imageBox(image_path, (x, y, w, h), fitting="fit", anchor=("left", "top"), draw_box_frame=False)` behaves like `textBox` but for images.
+By default, it takes an image or imageObject and scale it so that it fits within a given box. The `fitting` argument can be `fit`, `fill` or `crop`.
+
+- `fitting="fit"` will scale the image so that it fits within the box.
+- `fitting="fill"` will scale the image so that it fill the entire box and that at least the image width or height is displayed entirely.
+- `fitting="crop"` will show the image at full size, and crop it so that it tays within the box.
+
+```python
+<insert-file: snippet-150-imageBox-fitting.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-150-imageBox-fitting.png)
+
+### fitting=fit
+
+```python
+<insert-file: snippet-160-imageBox-fit.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-160-imageBox-fit.png)
+
+### fitting=fill
+
+```python
+<insert-file: snippet-170-imageBox-fill.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-170-imageBox-fill.png)
+
+### fitting=crop
+
+```python
+<insert-file: snippet-180-imageBox-crop.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-180-imageBox-crop.png)
+
+### anchors
+
+By default, when cropped or smaller than the box, the image is anchored to the top left of a the imageBox. An `anchor=("left", "top")` argument can be provided to adjust the origin of the image within the box. `anchor` must be a tupple describing the horizontal and vertical positioning. Possible values for horizontal positioning are `"left"`, `"center"` or `"right"`, possible values for vertical positioning are `"top"`, `"center"` or `"bottom"`.
+
+```python
+<insert-file: snippet-190-imageBox-anchors.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-190-imageBox-anchors.png)
+
+Additionally, when using `fitting="crop"`, a `scale` argument can be provided to control the size at which the image will be displayed inside the `ìmageBox`.
+
+When using `fitting="fill"` or `fitting="fit"`, the scale argument will be ignored, as the scale is automatically calculated against the box size.
+
+```python
+<insert-file: snippet-200-imageBox-scale.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-200-imageBox-scale.png)
+
+

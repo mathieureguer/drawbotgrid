@@ -440,3 +440,183 @@ columns.draw(show_index=True)
 
 ![ColumnGrid margins](drawBotGrid/docs/snippet-140-verticalAlignTextBox-basics.png)
 
+
+# imageBox
+
+`imageBox(image_path, (x, y, w, h), fitting="fit", anchor=("left", "top"), draw_box_frame=False)` behaves like `textBox` but for images.
+By default, it takes an image or imageObject and scale it so that it fits within a given box. The `fitting` argument can be `fit`, `fill` or `crop`.
+
+- `fitting="fit"` will scale the image so that it fits within the box.
+- `fitting="fill"` will scale the image so that it fill the entire box and that at least the image width or height is displayed entirely.
+- `fitting="crop"` will show the image at full size, and crop it so that it tays within the box.
+
+```python
+from drawBotGrid import ColumnGrid, imageBox
+
+newPage("A4Landscape")
+
+font("Georgia")
+fontSize(14)
+columns = ColumnGrid.from_margins((-50, -80, -50, -80), subdivisions=3)
+
+img_path = "/Users/mathieu/Dropbox/20 current dev/Custom Modules/DrawBotGrid/drawBotGrid/docs/drawMech-small.jpg"
+imageBox(img_path, (columns[0], columns.bottom, columns*1, columns.height), fitting="crop", anchor=("center", "top"))
+textBox('fitting="crop"', (columns[0], columns.bottom-40, columns*1, 30), align="center")
+
+imageBox(img_path, (columns[1], columns.bottom, columns*1, columns.height), fitting="fill", anchor=("center", "top"))
+textBox('fitting="fill"', (columns[1], columns.bottom-40, columns*1, 30), align="center")
+
+imageBox(img_path, (columns[2], columns.bottom, columns*1, columns.height), fitting="fit", anchor=("center", "top"))
+textBox('fitting="fit"', (columns[2], columns.bottom-40, columns*1, 30), align="center")
+
+columns.draw(show_index=True)
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-150-imageBox-fitting.png)
+
+### fitting=fit
+
+```python
+from drawBotGrid import Grid, imageBox
+
+newPage("A4Landscape")
+
+grid = Grid.from_margins((-50, -50, -50, -50), column_subdivisions=10, row_subdivisions=6)
+grid.draw()
+
+img_path = "https://raw.githubusercontent.com/mathieureguer/drawbotgrid/main/drawBotGrid/docs/drawMech-small.jpg"
+imageBox(img_path, (grid.columns[0], grid.rows[0], grid.columns*4, grid.rows*4), draw_box_frame=True)
+imageBox(img_path, (grid.columns[0], grid.rows[4], grid.columns*4, grid.rows*2), draw_box_frame=True)
+imageBox(img_path, (grid.columns[4], grid.rows[0], grid.columns*3, grid.rows*4), draw_box_frame=True)
+imageBox(img_path, (grid.columns[7], grid.rows[0], grid.columns*3, grid.rows*3), draw_box_frame=True)
+imageBox(img_path, (grid.columns[7], grid.rows[3], grid.columns*3, grid.rows*2), draw_box_frame=True)
+imageBox(img_path, (grid.columns[4], grid.rows[4], grid.columns*2, grid.rows*2), draw_box_frame=True)
+imageBox(img_path, (grid.columns[6], grid.rows[4], grid.columns*1, grid.rows*2), draw_box_frame=True)
+imageBox(img_path, (grid.columns[7], grid.rows[5], grid.columns*3, grid.rows*1), draw_box_frame=True)
+
+
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-160-imageBox-fit.png)
+
+### fitting=fill
+
+```python
+from drawBotGrid import Grid, imageBox
+
+newPage("A4Landscape")
+
+grid = Grid.from_margins((-50, -50, -50, -50), column_subdivisions=10, row_subdivisions=6)
+grid.draw()
+
+img_path = "https://raw.githubusercontent.com/mathieureguer/drawbotgrid/main/drawBotGrid/docs/drawMech-small.jpg"
+imageBox(img_path, (grid.columns[0], grid.rows[0], grid.columns*4, grid.rows*4), draw_box_frame=True, fitting="fill", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[0], grid.rows[4], grid.columns*4, grid.rows*2), draw_box_frame=True, fitting="fill", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[4], grid.rows[0], grid.columns*3, grid.rows*4), draw_box_frame=True, fitting="fill", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[7], grid.rows[0], grid.columns*3, grid.rows*3), draw_box_frame=True, fitting="fill", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[7], grid.rows[3], grid.columns*3, grid.rows*2), draw_box_frame=True, fitting="fill", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[4], grid.rows[4], grid.columns*2, grid.rows*2), draw_box_frame=True, fitting="fill", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[6], grid.rows[4], grid.columns*1, grid.rows*2), draw_box_frame=True, fitting="fill", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[7], grid.rows[5], grid.columns*3, grid.rows*1), draw_box_frame=True, fitting="fill", anchor=("center", "top"))
+
+
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-170-imageBox-fill.png)
+
+### fitting=crop
+
+```python
+from drawBotGrid import Grid, imageBox
+
+newPage("A4Landscape")
+
+grid = Grid.from_margins((-50, -50, -50, -50), column_subdivisions=10, row_subdivisions=6)
+grid.draw()
+
+img_path = "/Users/mathieu/Dropbox/20 current dev/Custom Modules/DrawBotGrid/drawBotGrid/docs/drawMech-small.jpg"
+imageBox(img_path, (grid.columns[0], grid.rows[0], grid.columns*4, grid.rows*4), draw_box_frame=True, fitting="crop", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[0], grid.rows[4], grid.columns*4, grid.rows*2), draw_box_frame=True, fitting="crop", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[4], grid.rows[0], grid.columns*3, grid.rows*4), draw_box_frame=True, fitting="crop", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[7], grid.rows[0], grid.columns*3, grid.rows*3), draw_box_frame=True, fitting="crop", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[7], grid.rows[3], grid.columns*3, grid.rows*2), draw_box_frame=True, fitting="crop", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[4], grid.rows[4], grid.columns*2, grid.rows*2), draw_box_frame=True, fitting="crop", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[6], grid.rows[4], grid.columns*1, grid.rows*2), draw_box_frame=True, fitting="crop", anchor=("center", "top"))
+imageBox(img_path, (grid.columns[7], grid.rows[5], grid.columns*3, grid.rows*1), draw_box_frame=True, fitting="crop", anchor=("center", "top"))
+
+
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-180-imageBox-crop.png)
+
+### anchors
+
+By default, when cropped or smaller than the box, the image is anchored to the top left of a the imageBox. An `anchor=("left", "top")` argument can be provided to adjust the origin of the image within the box. `anchor` must be a tupple describing the horizontal and vertical positioning. Possible values for horizontal positioning are `"left"`, `"center"` or `"right"`, possible values for vertical positioning are `"top"`, `"center"` or `"bottom"`.
+
+```python
+from drawBotGrid import Grid, ColumnGrid, imageBox
+
+newPage("A4Landscape")
+
+global_grid = ColumnGrid.from_margins((-60, -40, -60, -40), subdivisions=2, gutter=40)
+grid_left = Grid((global_grid[0], global_grid.bottom, global_grid*1, global_grid.height), column_subdivisions=3, row_subdivisions=3)
+grid_right= Grid((global_grid[1], global_grid.bottom, global_grid*1, global_grid.height), column_subdivisions=3, row_subdivisions=3)
+
+img_path = "https://raw.githubusercontent.com/mathieureguer/drawbotgrid/main/drawBotGrid/docs/drawMech-small.jpg"
+
+imageBox(img_path, (grid_left.columns[0], grid_left.rows[0], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("left", "bottom"), draw_box_frame=True)
+imageBox(img_path, (grid_left.columns[0], grid_left.rows[1], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("left", "center"), draw_box_frame=True)
+imageBox(img_path, (grid_left.columns[0], grid_left.rows[2], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("left", "top"), draw_box_frame=True)
+
+imageBox(img_path, (grid_left.columns[1], grid_left.rows[0], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("center", "bottom"), draw_box_frame=True)
+imageBox(img_path, (grid_left.columns[1], grid_left.rows[1], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("center", "center"), draw_box_frame=True)
+imageBox(img_path, (grid_left.columns[1], grid_left.rows[2], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("center", "top"), draw_box_frame=True)
+
+imageBox(img_path, (grid_left.columns[2], grid_left.rows[0], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("right", "bottom"), draw_box_frame=True)
+imageBox(img_path, (grid_left.columns[2], grid_left.rows[1], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("right", "center"), draw_box_frame=True)
+imageBox(img_path, (grid_left.columns[2], grid_left.rows[2], grid_left.columns*1, grid_left.rows*1), fitting="crop", scale=.15, anchor=("right", "top"), draw_box_frame=True)
+
+imageBox(img_path, (grid_right.columns[0], grid_right.rows[0], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("left", "bottom"), draw_box_frame=True)
+imageBox(img_path, (grid_right.columns[0], grid_right.rows[1], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("left", "center"), draw_box_frame=True)
+imageBox(img_path, (grid_right.columns[0], grid_right.rows[2], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("left", "top"), draw_box_frame=True)
+
+imageBox(img_path, (grid_right.columns[1], grid_right.rows[0], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("center", "bottom"), draw_box_frame=True)
+imageBox(img_path, (grid_right.columns[1], grid_right.rows[1], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("center", "center"), draw_box_frame=True)
+imageBox(img_path, (grid_right.columns[1], grid_right.rows[2], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("center", "top"), draw_box_frame=True)
+
+imageBox(img_path, (grid_right.columns[2], grid_right.rows[0], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("right", "bottom"), draw_box_frame=True)
+imageBox(img_path, (grid_right.columns[2], grid_right.rows[1], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("right", "center"), draw_box_frame=True)
+imageBox(img_path, (grid_right.columns[2], grid_right.rows[2], grid_right.columns*1, grid_right.rows*1), fitting="crop", scale=1, anchor=("right", "top"), draw_box_frame=True)
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-190-imageBox-anchors.png)
+
+Additionally, when using `fitting="crop"`, a `scale` argument can be provided to control the size at which the image will be displayed inside the `ìmageBox`.
+
+When using `fitting="fill"` or `fitting="fit"`, the scale argument will be ignored, as the scale is automatically calculated against the box size.
+
+```python
+from drawBotGrid import Grid, imageBox
+
+newPage("A4Landscape")
+
+grid = Grid.from_margins((-60, -40, -60, -40), column_subdivisions=3, row_subdivisions=3)
+
+
+img_path = "https://raw.githubusercontent.com/mathieureguer/drawbotgrid/main/drawBotGrid/docs/drawMech-small.jpg"
+
+imageBox(img_path, (grid.columns[0], grid.rows[2], grid.columns*1, grid.rows*1), fitting="crop", scale= .5, anchor=("right", "top"), draw_box_frame=True)
+imageBox(img_path, (grid.columns[1], grid.rows[2], grid.columns*1, grid.rows*1), fitting="crop", scale= .6, anchor=("right", "top"), draw_box_frame=True)
+imageBox(img_path, (grid.columns[2], grid.rows[2], grid.columns*1, grid.rows*1), fitting="crop", scale= .7, anchor=("right", "top"), draw_box_frame=True)
+imageBox(img_path, (grid.columns[0], grid.rows[1], grid.columns*1, grid.rows*1), fitting="crop", scale= .8, anchor=("right", "top"), draw_box_frame=True)
+imageBox(img_path, (grid.columns[1], grid.rows[1], grid.columns*1, grid.rows*1), fitting="crop", scale= .9, anchor=("right", "top"), draw_box_frame=True)
+imageBox(img_path, (grid.columns[2], grid.rows[1], grid.columns*1, grid.rows*1), fitting="crop", scale=1  , anchor=("right", "top"), draw_box_frame=True)
+imageBox(img_path, (grid.columns[0], grid.rows[0], grid.columns*1, grid.rows*1), fitting="crop", scale=1.2, anchor=("right", "top"), draw_box_frame=True)
+imageBox(img_path, (grid.columns[1], grid.rows[0], grid.columns*1, grid.rows*1), fitting="crop", scale=1.4, anchor=("right", "top"), draw_box_frame=True)
+imageBox(img_path, (grid.columns[2], grid.rows[0], grid.columns*1, grid.rows*1), fitting="crop", scale=1.6, anchor=("right", "top"), draw_box_frame=True)
+
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-200-imageBox-scale.png)
+
+
