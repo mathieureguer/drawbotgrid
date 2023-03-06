@@ -18,7 +18,7 @@ columns = ColumnGrid((50, baselines[-4], width()-100, baselines*-44), subdivisio
 fill(0)
 font("Georgia")
 fontSize(9)
-lineHeight(12)
+lineHeight(11.5)
 textBox("This is a classic textBox.\n" + "blah "*1000, 
         (columns[0], columns.bottom, columns*1, columns.height))
 

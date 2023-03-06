@@ -21,8 +21,8 @@ For drawBot as a command line module, just enter the following terminal command:
 
 `ColumnGrid((x, y, h, w), subdivisions=8, gutter=10)` divides the page in a given number of columns, separated by a gutter, making it easy to retrieve absolute x coordinates within the page.
 
-`ColumnGrid` is callable by index, just like a list.  `ColumnGrid[2]` will return the y coordinate of the *left* of the third column.
-Negative indexes works, `ColumnGrid[-1]` will return the y coordinate of *right* of the last column.
+`ColumnGrid` is callable by index, just like a list.  `ColumnGrid[2]` will return the x coordinate of the *left* of the third column.
+Negative indexes works, `ColumnGrid[-1]` will return the x coordinate of *right* of the last column.
 
 ```python
 from drawBotGrid import ColumnGrid
@@ -288,7 +288,7 @@ columns = ColumnGrid((50, baselines[-4], width()-100, baselines*-44), subdivisio
 fill(0)
 font("Georgia")
 fontSize(9)
-lineHeight(12)
+lineHeight(11.5)
 textBox("This is a classic textBox.\n" + "blah "*1000, 
         (columns[0], columns.bottom, columns*1, columns.height))
 
