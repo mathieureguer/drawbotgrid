@@ -62,7 +62,15 @@ class AbstractArea():
 
     @property
     def center(self):
-        return self.x + self.width/2, self.y + self.height/2
+        return self.horizontal_center, self.vertical_center
+
+    @property
+    def horizontal_center(self):
+        return self.x + self.width/2
+
+    @property
+    def vertical_center(self):
+        return self.y + self.height/2
    
     # ----------------------------------------
     
