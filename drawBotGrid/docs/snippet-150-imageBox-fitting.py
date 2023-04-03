@@ -11,7 +11,7 @@ font("Georgia")
 fontSize(14)
 columns = ColumnGrid.from_margins((-50, -80, -50, -80), subdivisions=3)
 
-img_path = "/Users/mathieu/Dropbox/20 current dev/Custom Modules/DrawBotGrid/drawBotGrid/docs/drawMech-small.jpg"
+img_path = "https://raw.githubusercontent.com/mathieureguer/drawbotgrid/main/drawBotGrid/docs/drawMech-small.jpg"
 imageBox(img_path, (columns[0], columns.bottom, columns*1, columns.height), fitting="crop", anchor=("center", "top"))
 textBox('fitting="crop"', (columns[0], columns.bottom-40, columns*1, 30), align="center")
 
