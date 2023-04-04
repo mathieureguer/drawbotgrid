@@ -181,6 +181,7 @@ def set_metric_baseline_height(baseline_height):
     # this seems to be necessary only for fonts with unusual vertical metrics
     line_height = _get_line_height_from_desired_baseline_height(baseline_height)
     db.lineHeight(line_height)
+    return line_height
 
 baselineHeight = set_metric_baseline_height
 

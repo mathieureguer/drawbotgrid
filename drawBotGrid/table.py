@@ -1,4 +1,5 @@
 import drawBot as db
+from . import grid, text
 
 from collections import UserList
 import math
@@ -7,7 +8,7 @@ import math
 class Table:
     def __init__(self, possize, items, column_descriptions,
                  base_row_height=12,
-                 margins=3,
+                 margins=6,
                  header_gap=0):
         self.x, self.y, self.width, self.input_height = possize
         self.margins = margins
@@ -17,6 +18,7 @@ class Table:
                                         base_row_height=base_row_height, header_gap=header_gap)
 
         self.actual_height = self.rows_manager.total_height
+        self.vertical_align = False
 
     # drawers
 
@@ -31,10 +33,21 @@ class Table:
     def draw_frame(self):
         db.rect(self.x, self.y, self.width, self.height)
 
+    def draw_rows_frame(self):
+        db.line((self.x, self.y), (self.x + self.width, self.y))
+        db.line((self.x, self.y+self.height), (self.x + self.width, self.y+self.height))
+
+    def draw_columns_frame(self):
+        db.line((self.x, self.y), (self.x, self.y+self.height))
+        db.line((self.x+self.width, self.y), (self.x+self.width, self.y+self.height))
+
     def draw_content(self):
         for contents, cells in zip(self.cell_values, self.cell_rects):
             for content, cell in zip(contents, cells):
-                db.textBox(content, cell.textbox)
+                if self.vertical_align:
+                    text.verticalAlignTextBox(content, cell.raw_textbox, vertical_align="center")
+                else:
+                    db.textBox(content, cell.textbox)
 
     def draw_header_background(self):
         db.rect(*self.header_rect)
@@ -43,6 +56,16 @@ class Table:
         db.rect(*self.content_rect)
 
     # properties
+
+    @property
+    def show_header(self):
+        return self._show_header
+
+    @show_header.setter
+    def show_header(self, value):
+        self._show_header = value
+        self.rows_manager.show_header = value
+    
 
     @property
     def height(self):
@@ -109,7 +132,7 @@ class ColumnsManager:
         return len([col for col in self.column_descriptions if col.get(self.WIDTH_KEY) == None])
 
     def _get_sum_of_defined_columns_width(self):
-        return sum([col.get("width") for col in self.column_descriptions if col.get(self.WIDTH_KEY) != None])
+        return sum([col.get(self.WIDTH_KEY,  0) for col in self.column_descriptions])
 
     def _calculate_flex_width(self):
         return (self.table.width - self._get_sum_of_defined_columns_width()) / max(1, self._get_number_of_flex_columns_width())
@@ -118,7 +141,7 @@ class ColumnsManager:
         widths = []
         flex_width = self._calculate_flex_width()
         for col in self.column_descriptions:
-            width = col.get("width", flex_width) or flex_width
+            width = col.get(self.WIDTH_KEY, flex_width)
             widths.append(width)
         return widths
 
@@ -151,6 +174,19 @@ class RowsManager:
         self.base_row_height = base_row_height
         self.header_gap = header_gap
 
+        self._show_header = True
+
+        self.heights = self._calculate_rows_heights()
+        self.origins = self._calculate_rows_origins()
+
+
+    @property
+    def show_header(self):
+        return self._show_header
+
+    @show_header.setter
+    def show_header(self, value):
+        self._show_header = value
         self.heights = self._calculate_rows_heights()
         self.origins = self._calculate_rows_origins()
 
@@ -198,7 +234,10 @@ class RowsManager:
 
     @property
     def cell_values(self):
-        return self.rows
+        if self.show_header:
+            return self.rows
+        else:
+            return self.content_values
 
     # ----------------------------------------
     # coordinate helpers
@@ -208,7 +247,11 @@ class RowsManager:
 
     def _calculate_rows_heights(self):
         heights = []
-        for row in self.rows:
+        if self.show_header:
+            rows = self.rows
+        else:
+            rows = self.rows[1:]
+        for row in rows:
             heights.append(self._calculate_row_height(row))
         return heights
 
@@ -216,7 +259,7 @@ class RowsManager:
         origins = []
         current_y = self.table.y
         for i, height in enumerate(self.heights):
-            if i == 1:
+            if i == 1 and self.show_header:
                 # second line might be lower than normal due to header gap
                 current_y -= height + self.header_gap
             else:
@@ -250,6 +293,10 @@ class CellBox:
     def textbox(self):
         offset = self._get_text_vertical_offset()
         return (self.x + self.table.margins, self.y - offset, self.width - self.table.margins * 2, self.height)
+
+    @property
+    def raw_textbox(self):
+        return (self.x + self.table.margins, self.y, self.width - self.table.margins * 2, self.height)
 
     # ----------------------------------------
 
