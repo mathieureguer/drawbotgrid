@@ -4,6 +4,19 @@ import math
 
 # ----------------------------------------
 
+_textbox_funct = db.textBox
+
+def set_text_overflow_test_mode(bool_):
+    global _textbox_funct
+    if bool_ == False:
+        _textbox_funct = db.textBox
+    else:
+        _textbox_funct = db.textOverflow
+
+textOverflowTestMode = set_text_overflow_test_mode
+
+# ----------------------------------------
+
 def baseline_grid_textBox(txt, 
                 box, 
                 baseline_grid, 
@@ -48,7 +61,7 @@ def baseline_grid_textBox(txt,
             target_line = baseline_grid.closest_line_below_coordinate(y + h/2 - absolute_cap_height/2)
             shift = target_line - mid_line_y
 
-        overflow = db.textBox(txt, (x, y+shift, w, h), align=align)
+        overflow = _textbox_funct(txt, (x, y+shift, w, h), align=align)
         return overflow
 
 baselineGridTextBox = baseline_grid_textBox
@@ -83,13 +96,14 @@ def _column_textBox_base(txt,
             sub_box = (col, columns.bottom, columns*1, columns.height)
             if baseline_grid:
                 overflow = baseline_grid_textBox(overflow, 
-                                                    sub_box, 
-                                                    baseline_grid,
-                                                    align=align)
+                                                 sub_box, 
+                                                 baseline_grid,
+                                                 align=align)
             else:
-                overflow = db.textBox(overflow, 
-                                      sub_box, 
-                                      align=align)
+                overflow = _textbox_funct(overflow, 
+                                         sub_box, 
+                                         align=align)
+
 
     if draw_grid:
         grid_color =  (.5, 0, .8, 1)
@@ -121,6 +135,7 @@ def _column_textBox_base(txt,
         
     return overflow
 
+
 # ----------------------------------------
 
 def _get_text_flow_path(xy1, xy2):
@@ -141,6 +156,7 @@ def _draw_point(xy, radius=2):
 # ----------------------------------------
 
 def vertical_align_textBox(txt, box, align=None, vertical_align="top"):
+
     assert vertical_align in ("top", "bottom", "center")
 
     x, y, w, h = correct_box_direction(box)
@@ -170,10 +186,13 @@ def vertical_align_textBox(txt, box, align=None, vertical_align="top"):
         margin = (h - text_h) / 2
         shift = y + margin - bottom
     
-    db.textBox(txt, (x, y+shift, w, h), align=align)
+    box = (x, y+shift, w, h)
+    overflow = _textbox_funct(txt, box, align=align)
+    return overflow
 
 
 verticalAlignTextBox = vertical_align_textBox
+
 
 # ----------------------------------------
 

@@ -175,6 +175,18 @@ Setting the optional argument `draw_grid=True` will draw the underlying grid.
 
 ![ColumnGrid margins](drawBotGrid/docs/snippet-140-verticalAlignTextBox-basics.png)
 
+# textOverflowTestMode
+
+Sometimes, you need to know if a textBox like object is overflowing before drawing it (you may want to adjust line spacing, or the number columns accordingly).
+`textOverflowTestMode(True)` will trigger a special mode where all drawBotGrid textBox related object will return overflow but not be drawn on the page. `textOverflowTestMode(False)` will reverse back to default, where textBox related objects are drawn as usual.
+
+```python
+<insert-file: snippet-148-textOverflowTestMode.py>
+```
+
+![ColumnGrid margins](drawBotGrid/docs/snippet-148-textOverflowTestMode.png)
+
+*Note: This departs quite a bit from the DrawBot way handling text overflow testing and is subject to change :)*
 
 # imageBox
 
