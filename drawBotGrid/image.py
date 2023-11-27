@@ -96,7 +96,7 @@ def image_box(path,
                 db.stroke(*grid_color)
                 db.rect(*box)
 
-        return offset_x, offset_y, crop_width, crop_height
+        return offset_x, offset_y, crop_width*scale_ratio, crop_height*scale_ratio
 
 def _crop_image_with_anchor(input_path, output_path, anchor, crop_width, crop_height):
     
