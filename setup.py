@@ -7,7 +7,7 @@ from setuptools import setup
 #         return f.read()
 
 setup(name="drawBotGrid",
-      version="0.1.2",
+      version="0.1.3",
       description="a little helper for grid based layout in DrawBot",
       long_description="TBD",
       classifiers=[

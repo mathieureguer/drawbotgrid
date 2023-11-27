@@ -100,6 +100,10 @@ def _crop_image_with_anchor(input_path, output_path, anchor, crop_width, crop_he
     
     anchor_x, anchor_y = anchor
     im_width, im_height = db.imageSize(input_path)
+
+    crop_width = min(crop_width, im_width)
+    crop_height = min(crop_height, im_height)
+
     if anchor_x == "left":
         crop_x = 0
     elif anchor_x == "right":
@@ -110,7 +114,7 @@ def _crop_image_with_anchor(input_path, output_path, anchor, crop_width, crop_he
     if anchor_y == "bottom":
         crop_y = 0
     elif anchor_y == "top":
-        crop_y = im_height- crop_height
+        crop_y = im_height - crop_height
     elif anchor_y == "center":
         crop_y = (im_height - crop_height)/2
 
@@ -118,6 +122,8 @@ def _crop_image_with_anchor(input_path, output_path, anchor, crop_width, crop_he
     ## as drawBot imageObject.crop 
     ## seems to produce blurred borders
 
+    crop_x = min(crop_x, im_width)
+    crop_y = min(crop_y, im_height)
     im = PIL.Image.open(input_path)
     im = im.crop((crop_x, crop_y, crop_x+crop_width, crop_y+crop_height))
     im.save(output_path)
