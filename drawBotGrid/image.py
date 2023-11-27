@@ -61,7 +61,7 @@ def image_box(path,
         elif fitting == "crop":        
             scale_ratio = scale
 
-        _crop_image_with_anchor(path, im_cropped.name, anchor, w/scale_ratio, h/scale_ratio)
+        crop_width, crop_height = _crop_image_with_anchor(path, im_cropped.name, anchor, w/scale_ratio, h/scale_ratio)
 
         im_width, im_height = db.imageSize(im_cropped.name)
         im_width_scaled = im_width*scale_ratio
@@ -96,7 +96,7 @@ def image_box(path,
                 db.stroke(*grid_color)
                 db.rect(*box)
 
-        return offset_x, offset_y, im_cropped.width, im_cropped.height
+        return offset_x, offset_y, crop_width, crop_height
 
 def _crop_image_with_anchor(input_path, output_path, anchor, crop_width, crop_height):
     
@@ -129,6 +129,7 @@ def _crop_image_with_anchor(input_path, output_path, anchor, crop_width, crop_he
     im = PIL.Image.open(input_path)
     im = im.crop((crop_x, crop_y, crop_x+crop_width, crop_y+crop_height))
     im.save(output_path)
+    return crop_width, crop_height
 
 # def _get_image_offset_in_box(im, box, anchor):
 #     x, y, w, h = box
